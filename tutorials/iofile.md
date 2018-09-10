@@ -317,4 +317,10 @@ Le bloc sera représenté par un tableau de 16 caractères
 char bloc[16];
 ```
 
+Testez votre programme sur la copie d'un fichier de plus de 16 caractères.
+
+Comparez le temps de copie d'un fichier volumineux entre les deux
+approches. Pour cela, utilisez `time ma_commande` qui exécute la
+commande shell `ma_commande` puis affiche son temps d'exécution.
+
 </div>
