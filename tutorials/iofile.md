@@ -34,8 +34,8 @@ size_t write(int fildes, const void *buf, size_t nbytes);
 Cette fonction va écrire `nbytes` à partir de l’adresse `buf` dans le fichier
 identifié par le descripteur `filedes`. Cette fonction retourne le nombre de
 bytes (octets) effectivement écrits. Si 0 est retourné alors aucun octet n’a été
-écrit ; un retour de -1 indique une erreur et la description de l’erreur se
-trouvera dans la variable globale `errno`.
+écrit ; un retour de -1 indique une erreur.
+<!-- et la description de l’erreur se trouvera dans la variable globale `errno`. -->
 
 ### la fonction `write` : premier exercice
 
@@ -129,7 +129,6 @@ Testez ce programme :
 #include <sys/types.h>
 #include <sys/stat.h>
 int open(const char *path, int oflags);
-int open(const char *path, int oflags, mode_t mode);
 ```
 
 La fonction `open` rend un service assez simple mais très utile : elle
@@ -154,8 +153,8 @@ Les actions obligatoires concernent le type d’ouverture :
 Les actions optionnelles sont :
 * `O_APPEND` : les données écrites sont placées à la fin du fichier
 * `O_TRUNC` : la longueur du fichier est mise à zéro
-* `O_CREAT` : création du fichier si c’est nécessaire. Les permissions initiales
-  sont indiquées par la variable mode.
+* `O_CREAT` : création du fichier seulement si il n'existe pas déjà. Les
+  permissions initiales sont indiquées par la variable `mode`.
 * `O_EXCL` : utilisé avec `O_CREAT` pour assurer que l’appel de la fonction va
   effectivement créer le fichier.
 
@@ -228,8 +227,8 @@ void perror(const char *s);
 
 1. Créer plusieurs petits programmes qui font les erreurs suivantes et voyez les
    messages d'erreur de `perror` :
-   * Ouvrir un fichier qui existe avec les drapeaux qui assurent que `open` doit
-     créer le fichier.
+   * Ouvrir un fichier qui existe alors que les drapeaux de `open` assurent que
+     le fichier ne doit pas exister.
    * Ouvrir un fichier en lecture et écrire dedans avec `write`.
 
 Tous les appels systèmes renvoient `-1` en cas d'erreur. Vous devez dans ce TD
@@ -240,9 +239,17 @@ Tous les appels systèmes renvoient `-1` en cas d'erreur. Vous devez dans ce TD
 
 ### Création de fichier avec des permissions initiales
 
-On peut également spécifier les droits associés à un fichier lors de sa création. On
-utilise pour cela un certain nombre d’indicateurs de droits qu’on peut combiner avec
-l’opérateur |
+```c
+#include <fcntl.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+int open(const char *path, int oflags, mode_t mode);
+```
+
+On peut également spécifier les droits associés à un fichier lors de sa création
+avec l'argument optionnel `mode_t mode`. Cet argument prend pour valeur un certain nombre
+d’indicateurs de droits que l’on peut combiner avec l’opérateur "ou binaire" `|`.
+
 Les indicateurs de droits sont :
 * `S_IRUSR` : permission de lecture pour le propriétaire
 * `S_IWUSR` : permission d’écriture pour le propriétaire
@@ -259,7 +266,9 @@ Par exemple :
 open ("monfichier", O_CREAT, S_IRUSR | S_IXOTH );
 ```
 
-Demande la création du fichier si c’est nécessaire des droits de lecture pour le propriétaire et exécution pour les autres.
+créera le fichier si il n'existe pas avec les droits de lecture pour le
+propriétaire et d'exécution pour les autres. Si le fichier existe, il ne
+changera pas les droits.
 
 ### La fonction `close`
 
